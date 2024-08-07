@@ -51,17 +51,15 @@ If you're interested in contributing to MentalMindBot, please contact Sahar Nesa
 ## Installation and Usage
 
 1. Clone the repository:
-   
-   git clone https://github.com/sahanes/AI-Engineering-Demo-Day.git
-   
-   cd AI-Engineering-Demo-Day
+   - git clone https://github.com/sahanes/AI-Engineering-Demo-Day.git
+   - cd AI-Engineering-Demo-Day
 
 3. Install the required dependencies:
-   
-   pip install -r requirements.txt
+   - pip install -r requirements.txt
    
 5. Run the MentalMindBot:
-   chainlit run <name_of_app>
+   - chainlit run <name_of_app>
+   - Replace `<name_of_app>` with the actual name of the main application file.
 
-Replace `<name_of_app>` with the actual name of the main application file.
+     
 For any questions or clarifications about usage, please contact saharnesaei9723@gmail.com.
