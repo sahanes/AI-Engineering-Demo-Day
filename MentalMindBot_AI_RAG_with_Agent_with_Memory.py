@@ -1,7 +1,9 @@
 import json
 import operator
 from operator import itemgetter
-from typing import Annotated, Sequence, TypedDict
+from typing import Annotated, Sequence, TypedDict, Dict, Any
+import types
+import inspect
 
 import chainlit as cl
 from dotenv import load_dotenv
@@ -12,7 +14,7 @@ from langchain.schema.runnable.config import RunnableConfig
 from langchain.storage import InMemoryStore
 
 # from langchain_core.output_parsers import StrOutputParser
-from langchain.tools import tool
+from langchain.tools import tool, Tool
 from langchain_community.document_loaders import ArxivLoader
 from langchain_community.tools.arxiv.tool import ArxivQueryRun
 from langchain_community.tools.ddg_search import DuckDuckGoSearchRun
@@ -35,8 +37,83 @@ from langgraph.checkpoint.aiosqlite import AsyncSqliteSaver
 
 # from langchain_community.tools.pubmed.tool import PubmedQueryRun
 from langgraph.prebuilt import ToolExecutor, ToolInvocation
+from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams
+
+# Import MCP client
+# from fastmcp import FastMCP
+# import asyncio
+
+# # Initialize MCP client
+# mcp_client = FastMCP("MentalHealthCounselingBot-server")
+
+# # Ensure MCP server is running
+# async def ensure_mcp_server():
+#     try:
+#         # Try to invoke a simple tool to check connection
+#         result = await mcp_client.run_tool("rag_tool", {"question": "test"})
+#         print("Successfully connected to MCP server")
+#         return True
+#     except Exception as e:
+#         print(f"Error connecting to MCP server: {e}")
+#         # Start the MCP server if not running
+#         import subprocess
+#         subprocess.Popen(["uv", "run", "python", "server.py"])
+#         # Wait for server to start
+#         await asyncio.sleep(2)
+#         # Try connecting again
+#         try:
+#             result = await mcp_client.run_tool("rag_tool", {"question": "test"})
+#             print("Started and connected to MCP server")
+#             return True
+#         except Exception as e:
+#             print(f"Failed to connect to MCP server after starting: {e}")
+#             return False
+
+# Proposed MCP implementation
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
+import asyncio
+
+# Initialize MCP client
+async def get_mcp_session():
+    # Define server configuration
+    server_params = StdioServerParameters(
+        command="uv",
+        args=["run", "server.py"]
+    )
+    
+    # Start server and connect client
+    read, write = await stdio_client(server_params)
+    session = ClientSession(read, write)
+    await session.initialize()
+    return session
+
+# Ensure MCP server is running
+async def ensure_mcp_server():
+    try:
+        session = await get_mcp_session()
+        # Try to invoke a simple tool to check connection
+        result = await session.call_tool("rag_tool", {"question": "test"})
+        print("Successfully connected to MCP server")
+        return session
+    except Exception as e:
+        print(f"Error connecting to MCP server: {e}")
+        # Start the MCP server if not running
+        import subprocess
+        subprocess.Popen(["uv", "run", "server.py"])
+        # Wait for server to start
+        await asyncio.sleep(2)
+        # Try connecting again
+        try:
+            session = await get_mcp_session()
+            result = await session.call_tool("rag_tool", {"question": "test"})
+            print("Started and connected to MCP server")
+            return session
+        except Exception as e:
+            print(f"Failed to connect to MCP server after starting: {e}")
+            return None
 
 # GLOBAL SCOPE - ENTIRE APPLICATION HAS ACCESS TO VALUES SET IN THIS SCOPE #
 # ---- ENV VARIABLES ---- #
@@ -136,29 +213,126 @@ def create_qa_chain(retriever):
 
 ### 6. DEFINE LIST OF TOOLS AVAILABLE FOR AND TOOL EXECUTOR WRAPPED AROUND THEM
 
+def create_function_from_schema(name: str, schema: Dict[str, Any]) -> types.FunctionType:
+    """Create a function from a JSON schema."""
+    # Extract parameters from schema
+    parameters = schema.get("parameters", {})
+    required = parameters.get("required", [])
+    properties = parameters.get("properties", {})
+    
+    # Create function signature
+    async def function_body(*args, **kwargs) -> str:
+        # Handle both positional and keyword arguments
+        if args:
+            tool_input = args[0]
+        else:
+            tool_input = kwargs.get("query", "")
+            
+        # Call the MCP tool with provided arguments
+        try:
+            # Ensure MCP server is running and get session
+            session = await ensure_mcp_server()
+            if session is None:
+                return f"Error: Could not connect to MCP server"
+                
+            result = await session.call_tool(name, {"question": tool_input})
+            if isinstance(result.content[0], TextContent):
+                return result.content[0].text
+            return str(result)
+        except Exception as e:
+            return f"Error calling tool {name}: {str(e)}"
+    
+    return function_body
 
-@tool
-async def rag_tool(question: str) -> str:
-    """Use this tool to retrieve relevant information from the knowledge base."""
-    # advanced_rag_prompt=ChatPromptTemplate.from_template(INSTRUCTION_PROMPT_TEMPLATE.format(user_query=question))
-    parent_document_retriever_qa_chain = create_qa_chain(parent_document_retriever)
-    response = await parent_document_retriever_qa_chain.ainvoke({"question": question})
+# Define tool schemas
+rag_tool = {
+    "name": "rag_search",
+    "description": "Search the knowledge base for relevant information",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "query": {
+                "type": "string",
+                "description": "The search query"
+            }
+        },
+        "required": ["query"]
+    }
+}
 
-    return response["response"]
+pubmed_search = {
+    "name": "pubmed_search",
+    "description": "Search PubMed for medical research articles",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "query": {
+                "type": "string",
+                "description": "The search query"
+            }
+        },
+        "required": ["query"]
+    }
+}
 
+arxiv_search = {
+    "name": "arxiv_search",
+    "description": "Search Arxiv for academic papers",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "query": {
+                "type": "string",
+                "description": "The search query"
+            }
+        },
+        "required": ["query"]
+    }
+}
 
+web_search = {
+    "name": "web_search",
+    "description": "Search the web for trusted resources",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "query": {
+                "type": "string",
+                "description": "The search query"
+            }
+        },
+        "required": ["query"]
+    }
+}
+
+# Create tool belt with MCP tools
 tool_belt = [
-    rag_tool,
-    PubmedQueryRun(),
-    ArxivQueryRun(),
-    DuckDuckGoSearchRun(),
+    Tool(
+        name=rag_tool["name"],
+        description=rag_tool["description"],
+        func=create_function_from_schema(rag_tool["name"], rag_tool)
+    ),
+    Tool(
+        name=pubmed_search["name"],
+        description=pubmed_search["description"],
+        func=create_function_from_schema(pubmed_search["name"], pubmed_search)
+    ),
+    Tool(
+        name=arxiv_search["name"],
+        description=arxiv_search["description"],
+        func=create_function_from_schema(arxiv_search["name"], arxiv_search)
+    ),
+    Tool(
+        name=web_search["name"],
+        description=web_search["description"],
+        func=create_function_from_schema(web_search["name"], web_search)
+    )
 ]
 
 tool_executor = ToolExecutor(tool_belt)
-
-
-### 7. CONVERT TOOLS INTO THE FORMAT COMAPTIBLE WITH OPENAI'S FUNCTION CALLING API THEN BINDING THEM TO MODEL TO BE USED WHEN GENERATION
 model = ChatOpenAI(temperature=0, streaming=True)
+# Add streaming configuration to the model
+model = model.with_config({"callbacks": [StreamingStdOutCallbackHandler()]})
 
 functions = [convert_to_openai_function(t) for t in tool_belt]
 model = model.bind_functions(functions)
@@ -190,12 +364,14 @@ async def call_model(state):
 
 async def call_tool(state):
     last_message = state["messages"][-1]
-
+    
+    # Parse the function call arguments
+    args_dict = json.loads(last_message.additional_kwargs["function_call"]["arguments"])
+    
     action = ToolInvocation(
         tool=last_message.additional_kwargs["function_call"]["name"],
-        tool_input=json.loads(
-            last_message.additional_kwargs["function_call"]["arguments"]
-        ),
+        # Extract just the first argument from args array
+        tool_input=args_dict["args"][0] if isinstance(args_dict.get("args"), list) else args_dict
     )
     
     print()
@@ -326,7 +502,10 @@ def get_state_update_bot_with_helpfullness_node():
 # def convert_inputs(input_object):
 #     system_prompt = f"""You are a qualified psychologist providing mental health advice. Be empathetic in your responses. 
 #     Always provide a complete response. Be empathetic and provide a follow-up question to find a resolution. 
-#     First, look up the RAG (retrieval-augmented generation) and then arxiv research or use InternetSearch:
+#     
+#     You must Use the tools at your dsiposal.
+#     You must consult pubmed_search, then rag_search, then web_search.
+#     You must make multiple calls to these tools as needed to provide comprehensive advice.
 
 
 
@@ -369,7 +548,7 @@ def convert_inputs(input_object):
     Always provide a complete response. Be empathetic and provide a follow-up question to find a resolution. 
     
     You must Use the tools at your dsiposal.
-    You must consult pubmed, then ragtool, then duckduckgo_results_json.
+    You must consult pubmed_search, then rag_search, then web_search.
     You must make multiple calls to these tools as needed to provide comprehensive advice.
 
 
@@ -417,6 +596,7 @@ async def start_chat():
 
     The user session is a dictionary that is unique to each user session, and is stored in the memory of the server.
     """
+    # await mcp.connect()
 
     ### BUILD LCEL RAG CHAIN THAT ONLY RETURNS TEXT
     # lcel_rag_chain = ( {"context": itemgetter("query") | hf_retriever, "query": itemgetter("query")}

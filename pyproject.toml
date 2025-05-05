@@ -1,0 +1,27 @@
+[project]
+name = "ai-engineering-demo-day"
+version = "0.1.0"
+description = "Mental Health Counseling AI with RAG and Agent capabilities using FastMCP"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "chainlit>=1.2.0",
+    "langchain==0.2.10",
+    "langchain-community==0.2.9",
+    "langchain_core==0.2.22",
+    "langchain_openai==0.1.17",
+    "langchain_qdrant==0.1.2",
+    "langchain_text_splitters==0.2.2",
+    "langgraph==0.1.9",
+    "python-dotenv==1.0.1",
+    "qdrant_client==1.10.1",
+    "arxiv",
+    "duckduckgo-search",
+    "pubmed",
+    "duckduckgo_search==5.3.1b1",
+    "PyMuPDF",
+    "xmltodict",
+    "aiosqlite",
+    "fastmcp>=0.3.0",
+    "mcp-server>=0.1.4",
+]
