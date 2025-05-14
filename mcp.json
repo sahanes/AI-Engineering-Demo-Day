@@ -1,0 +1,59 @@
+{
+    "global": {
+        "host": "localhost",
+        "port": 8000,
+        "use_ssl": false,
+        "timeout": 30,
+        "retry_attempts": 3,
+        "retry_delay": 2
+    },
+    "local": {
+        "command": "uv",
+        "args": ["run", "server.py"],
+        "timeout": 30
+    },
+    "tools": {
+        "global": [
+            {
+                "name": "web_search",
+                "description": "Search the web for information",
+                "parameters": {
+                    "query": {
+                        "type": "string",
+                        "description": "Search query"
+                    }
+                }
+            },
+            {
+                "name": "git_info",
+                "description": "Get information about a git repository",
+                "parameters": {
+                    "repo_path": {
+                        "type": "string",
+                        "description": "Repository path",
+                        "default": "."
+                    },
+                    "info_type": {
+                        "type": "string",
+                        "description": "Type of git info",
+                        "default": "status"
+                    }
+                }
+            }
+        ],
+        "local": [
+            {
+                "name": "rag_tool",
+                "description": "Search the knowledge base for mental health information"
+            },
+            {
+                "name": "pubmed_search",
+                "description": "Search PubMed for medical research articles"
+            },
+            {
+                "name": "arxiv_search",
+                "description": "Search Arxiv for academic papers"
+            }
+        ]
+    }
+} 

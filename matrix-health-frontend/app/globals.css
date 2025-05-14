@@ -1,0 +1,202 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --matrix-dark: #000000;
+  --matrix-green: #00ff41;
+  --matrix-light-green: #00ff8e;
+  --matrix-faded-green: rgba(0, 255, 65, 0.5);
+  --matrix-text: #ccffcb;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+@keyframes matrix-rain {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 0% 100%;
+  }
+}
+
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes blink {
+  50% {
+    border-color: transparent;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes flicker {
+  0%, 100% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.95;
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    text-shadow: 0 0 5px var(--matrix-green), 0 0 10px var(--matrix-green);
+  }
+  50% {
+    text-shadow: 0 0 10px var(--matrix-green), 0 0 20px var(--matrix-green);
+  }
+}
+
+body {
+  background-color: var(--matrix-dark);
+  color: var(--matrix-green);
+  font-family: var(--font-mono);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background-image: linear-gradient(
+    0deg,
+    rgba(0, 255, 65, 0.05) 1px,
+    transparent 1px
+  );
+  background-size: 100% 2px;
+  animation: matrix-rain 60s linear infinite;
+}
+
+.matrix-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.matrix-header {
+  border-bottom: 1px solid var(--matrix-green);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  animation: flicker 5s infinite;
+}
+
+.matrix-title {
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  animation: glow 3s infinite;
+}
+
+.matrix-console {
+  flex: 1;
+  border: 1px solid var(--matrix-green);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  overflow-y: auto;
+  background-color: rgba(0, 0, 0, 0.85);
+  box-shadow: 0 0 10px var(--matrix-faded-green);
+}
+
+.matrix-input-container {
+  display: flex;
+  border: 1px solid var(--matrix-green);
+  background-color: rgba(0, 0, 0, 0.85);
+}
+
+.matrix-input-prefix {
+  color: var(--matrix-light-green);
+  padding: 0.5rem;
+  user-select: none;
+}
+
+.matrix-input {
+  flex: 1;
+  background-color: transparent;
+  border: none;
+  color: var(--matrix-text);
+  padding: 0.5rem;
+  font-family: var(--font-mono);
+  outline: none;
+  caret-color: var(--matrix-light-green);
+}
+
+.matrix-input:focus {
+  box-shadow: inset 0 0 5px var(--matrix-faded-green);
+}
+
+.matrix-message {
+  margin-bottom: 1rem;
+  animation: fade-in 0.3s ease-in-out;
+}
+
+.matrix-user {
+  color: var(--matrix-light-green);
+  font-weight: bold;
+}
+
+.matrix-ai {
+  color: var(--matrix-text);
+}
+
+.matrix-system {
+  color: var(--matrix-faded-green);
+  font-style: italic;
+}
+
+.typing-effect {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 2px solid var(--matrix-green);
+  animation: typing 3.5s steps(40, end), blink 0.75s step-end infinite;
+}
+
+.loading-dots::after {
+  content: '';
+  animation: dots 1.5s infinite;
+}
+
+@keyframes dots {
+  0%, 20% { content: '.'; }
+  40%, 60% { content: '..'; }
+  80%, 100% { content: '...'; }
+}
+
+.secure-input {
+  -webkit-text-security: disc;
+}
+
+/* Matrix-style scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--matrix-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--matrix-green);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--matrix-light-green);
+}

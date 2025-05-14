@@ -1,27 +1,53 @@
 [project]
-name = "ai-engineering-demo-day"
+name = "mental-health-counseling-bot"
 version = "0.1.0"
-description = "Mental Health Counseling AI with RAG and Agent capabilities using FastMCP"
+description = "Mental Health Counseling Bot with MCP Integration"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "chainlit>=1.2.0",
-    "langchain==0.2.10",
-    "langchain-community==0.2.9",
-    "langchain_core==0.2.22",
-    "langchain_openai==0.1.17",
-    "langchain_qdrant==0.1.2",
-    "langchain_text_splitters==0.2.2",
-    "langgraph==0.1.9",
-    "python-dotenv==1.0.1",
-    "qdrant_client==1.10.1",
+    "fastmcp>=2.2.10",
+    "mcp[cli]>=1.7.1",
+    "typer>=0.15.3",
+    "langchain>=0.1.0",
+    "langchain-openai>=0.0.5",
+    "langchain-community>=0.0.13",
+    "qdrant-client>=1.7.0",
+    "chainlit>=1.0.0",
+    "python-dotenv>=1.0.0",
+    "openai>=1.12.0",
     "arxiv",
     "duckduckgo-search",
     "pubmed",
-    "duckduckgo_search==5.3.1b1",
     "PyMuPDF",
     "xmltodict",
     "aiosqlite",
-    "fastmcp>=0.3.0",
-    "mcp-server>=0.1.4",
+    "tavily-python>=0.5.4",
+    "langchain-qdrant>=0.2.0",
+    "langgraph>=0.4.3",
+    "ipython>=8.36.0",
+    "faiss-cpu>=1.11.0",
+    "psutil>=7.0.0",
 ]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastmcp = "^2.2.10"
+mcp = {extras = ["cli"], version = "^1.7.1"}
+typer = "^0.15.3"
+langchain = "^0.1.0"
+langchain-openai = "^0.0.5"
+langchain-community = "^0.0.13"
+qdrant-client = "^1.7.0"
+chainlit = "^1.0.0"
+python-dotenv = "^1.0.0"
+openai = "^1.12.0"
