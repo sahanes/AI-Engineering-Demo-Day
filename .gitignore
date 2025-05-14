@@ -58,4 +58,9 @@ out/
 
 # Large files or directories
 *.model
-*.bin 
+*.bin
+
+# New additions
+.chainlit/
+MentalMindBot_AI_RAG_with_Agent.py
+MentalMindBot_AI_RAG_with_Agent_with_Memory.py 
