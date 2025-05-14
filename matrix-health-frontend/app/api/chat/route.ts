@@ -42,20 +42,26 @@ export async function POST(request: Request) {
         references: response.data.references || [],
         session_id: response.data.session_id
       });
-    } catch (error: any) {
-      console.error('Error connecting to backend:', error.message);
-      console.error('Error details:', error.response?.data || error);
-      
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Error connecting to backend:', error.message);
+      } else {
+        console.error('Error connecting to backend:', error);
+      }
       // Fallback to local response if backend is unavailable
       return NextResponse.json({
         message: "I'm currently experiencing connectivity issues with my knowledge database. Please try again later or ask a different question.",
         references: [],
         session_id: session_id || "",
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
       });
     }
-  } catch (error: any) {
-    console.error('API route error:', error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('API route error:', error.message);
+    } else {
+      console.error('API route error:', error);
+    }
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
