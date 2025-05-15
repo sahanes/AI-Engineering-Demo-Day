@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
+import ReactMarkdown from 'react-markdown';
 
 type MessageType = {
   id: string;
@@ -171,7 +172,11 @@ const MatrixTerminal = () => {
         transition={{ duration: 0.3 }}
       >
         <span className="font-bold">{authorPrefixMap[message.author]} </span>
-        {message.content}
+        {message.author === 'ai' || message.author === 'system' ? (
+          <ReactMarkdown>{message.content}</ReactMarkdown>
+        ) : (
+          message.content
+        )}
         {message.author === 'system' && message.content === 'PROCESSING REQUEST' && (
           <span className="loading-dots"></span>
         )}
