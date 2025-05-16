@@ -33,14 +33,14 @@ OPENAI_API_KEY=your_api_key_here
 python -m chainlit run Bot_Integration_with_MCP_Tools.py
 ```
 
-# The Matrix-style appearance comes from several key files:
+# The Matrix-style appearance comes from several key files
 ## globals.css - Contains all the Matrix styling:
   - Green color scheme (--matrix-green: #00ff41)
   - Terminal-like font (JetBrains Mono)
   - Matrix rain animation
   - Glowing effects
   - Terminal-style input and messages
-## layout.tsx - Sets up the basic structure:
+## layout.tsx - Sets up the basic structure
   - Imports the Matrix font
   - Creates the terminal-like container
   - Adds the "NEURAL HEALTH INTERFACE" header
@@ -49,7 +49,7 @@ python -m chainlit run Bot_Integration_with_MCP_Tools.py
   - Terminal-style input with "QUERY>" prefix
   - Loading animations and effects
   
-#### Key Matrix-style features:
+#### Key Matrix-style features
   - Green text on black background
   - Terminal-like interface
   - Glowing effects
