@@ -64,6 +64,8 @@ python -m chainlit run Bot_Integration_with_MCP_Tools.py
   - Custom CSS classes for Matrix-specific styling
 
 ## on Local Terminal:
+
+```
 AI-Engineering-Demo-Day/            # my local project directory
 ├── matrix-health-frontend/         # my frontend code
 │   ├── app/
@@ -90,7 +92,7 @@ MCP-Matrix-MindBot/                # Your repository (both locally and on EC2)
     ├── Bot_Integration_with_MCP_Tools.py
     ├── requirements.txt
     └── ...
-
+```
 ## What's Happenin
 The technical journey involved: 🛠️
 
