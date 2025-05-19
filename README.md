@@ -99,3 +99,7 @@ The technical journey involved: 🛠️
 🖥️ Local development with a Matrix-inspired UI using npm run dev
 🏗️ Backend deployment on AWS EC2
 🚀 Frontend hosting on Vercel
+
+[User] → [Vercel Frontend] → [EC2 Backend] → [MCP Tools]
+                                    ↓
+                            [AI Model + RAG]
