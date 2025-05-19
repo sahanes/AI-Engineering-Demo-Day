@@ -100,6 +100,8 @@ The technical journey involved: 🛠️
 🏗️ Backend deployment on AWS EC2
 🚀 Frontend hosting on Vercel
 
+```
 [User] → [Vercel Frontend] → [EC2 Backend] → [MCP Tools]
                                     ↓
                             [AI Model + RAG]
+```
