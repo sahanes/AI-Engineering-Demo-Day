@@ -105,3 +105,13 @@ The technical journey involved: 🛠️
                                     ↓
                             [AI Model + RAG]
 ```
+
+Now to add the mcp-server-time integrated:
+
+```pip install mcp-server-time```
+
+After installation, you can run it as a script using:
+
+```python -m mcp_server_time```
+
+Please find the modification into the code when handling messages if they are time related questions.
