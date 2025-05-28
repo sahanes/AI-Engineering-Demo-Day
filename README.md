@@ -93,7 +93,7 @@ MCP-Matrix-MindBot/                # Your repository (both locally and on EC2)
     ├── requirements.txt
     └── ...
 ```
-## What's Happenin
+## What's Happening
 The technical journey involved: 🛠️
 
 🖥️ Local development with a Matrix-inspired UI using npm run dev
